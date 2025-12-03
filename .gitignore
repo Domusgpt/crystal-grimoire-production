@@ -18,6 +18,16 @@ build/
 STRIPE_CONFIGURATION_BACKUP.md
 STRIPE_LIVE_MODE_PLAN.md
 
+# Firebase configuration files with API keys
+google-services.json
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+
+# Test files with embedded config
+test-gemini.js
+test-auth-functions.js
+
 # OS
 .DS_Store
 Thumbs.db
