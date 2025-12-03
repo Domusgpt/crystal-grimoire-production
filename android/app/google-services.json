@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "513072589861",
+    "project_id": "crystal-grimoire-2025",
+    "storage_bucket": "crystal-grimoire-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513072589861:android:dc47f6a948e8beb6bce3cc",
+        "android_client_info": {
+          "package_name": "com.example.crystal_grimoire_fresh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513072589861-7s09e5oeh8udqnmsjgp57h2hn23pc7e5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.crystal_grimoire_fresh",
+            "certificate_hash": "00cf920a7f1c585f4c0b46b5587fde794aa4daff"
+          }
+        },
+        {
+          "client_id": "513072589861-bknkp31ivqoj8j3o0vu3m71dd8la2dt9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApOzFGJ24yAoH4bewftNNJuxHN6w22YzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513072589861-bknkp31ivqoj8j3o0vu3m71dd8la2dt9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

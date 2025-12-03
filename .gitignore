@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+functions/node_modules/
+
+# Flutter build artifacts
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Secrets
+*.env
+STRIPE_CONFIGURATION_BACKUP.md
+STRIPE_LIVE_MODE_PLAN.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase
+.firebase/

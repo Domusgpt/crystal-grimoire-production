@@ -1,0 +1,206 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // SPEC-1 Compliant Security Rules with Enhanced Validation
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+    
+    function isAdmin() {
+      return isAuth() && request.auth.token.role == 'admin';
+    }
+    
+    function isValidEmail() {
+      return isAuth() && request.auth.token.email_verified == true;
+    }
+    
+    function hasValidData(fields) {
+      return request.resource.data.keys().hasAll(fields) &&
+             request.resource.data.keys().hasOnly(fields.concat(['createdAt', 'updatedAt']));
+    }
+    
+    function isRecentTimestamp() {
+      return request.resource.data.createdAt is timestamp &&
+             request.resource.data.createdAt > request.time - duration.value(1, 'm') &&
+             request.resource.data.createdAt <= request.time;
+    }
+    
+    function isValidStringLength(value, minLen, maxLen) {
+      return value is string && value.size() >= minLen && value.size() <= maxLen;
+    }
+
+    // User profiles with enhanced validation
+    match /users/{userId} {
+      allow read, update: if isOwner(userId) && isValidEmail();
+      allow create: if isAuth() && request.auth.uid == userId && isValidEmail() &&
+                   hasValidData(['email', 'profile', 'settings']) &&
+                   request.resource.data.email == request.auth.token.email &&
+                   isRecentTimestamp();
+      allow delete: if false; // Use Cloud Function for GDPR compliance
+      
+      // Personal crystal collection
+      match /collection/{crystalId} {
+        allow read, write: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                     hasValidData(['libraryRef', 'notes', 'tags', 'addedAt']) &&
+                     isValidStringLength(request.resource.data.notes, 0, 1000) &&
+                     isRecentTimestamp();
+      }
+      
+      // Crystal identifications with size limits
+      match /identifications/{identificationId} {
+        allow read, write: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                     hasValidData(['imagePath', 'candidates', 'selected', 'createdAt']) &&
+                     request.resource.data.candidates is list &&
+                     request.resource.data.candidates.size() <= 5 &&
+                     isRecentTimestamp();
+      }
+      
+      // Guidance history with content validation
+      match /guidance/{guidanceId} {
+        allow read, write: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                     hasValidData(['context', 'output', 'metadata', 'createdAt']) &&
+                     request.resource.data.output.keys().hasAll(['overview', 'meditation', 'crystalLayout', 'mantra', 'cautions']) &&
+                     isRecentTimestamp();
+      }
+      
+      // Seer Credits economy (read-only for users)
+      match /economy/{doc} {
+        allow read: if isOwner(userId);
+        allow write: if false; // Only Cloud Functions can modify
+        
+        match /transactions/{transactionId} {
+          allow read: if isOwner(userId);
+          allow write: if false; // Only Cloud Functions
+        }
+      }
+      
+      // User plan and entitlements
+      match /plan/{doc} {
+        allow read: if isOwner(userId);
+        allow write: if isAdmin();
+      }
+      
+      // Badges and achievements
+      match /badges/{badgeId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) || isAdmin();
+        allow update, delete: if isAdmin();
+      }
+      
+      // Dream journal with privacy protection
+      match /dreams/{dreamId} {
+        allow read, write: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                     hasValidData(['content', 'analysis', 'crystalSuggestions', 'dreamDate', 'crystalsUsed', 'mood', 'moonPhase']) &&
+                     isValidStringLength(request.resource.data.content, 10, 5000) &&
+                     request.resource.data.crystalSuggestions is list &&
+                     request.resource.data.crystalsUsed is list;
+      }
+    }
+    
+    // Crystal library with admin controls
+    match /crystal_library/{crystalId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+      allow create: if isAdmin() &&
+                   hasValidData(['name', 'aliases', 'intents', 'chakras', 'zodiacSigns', 'elements', 'imageUrl']) &&
+                   isValidStringLength(request.resource.data.name, 2, 50) &&
+                   request.resource.data.aliases is list &&
+                   request.resource.data.intents is list &&
+                   isRecentTimestamp();
+    }
+    
+    // Marketplace with enhanced validation
+    match /marketplace/{listingId} {
+      allow read: if isAuth();
+      allow create: if isAuth() &&
+                   hasValidData(['title', 'crystalId', 'priceCents', 'sellerId', 'status', 'description', 'sellerName', 'category', 'imageUrl', 'isVerifiedSeller', 'rating']) &&
+                   request.resource.data.sellerId == request.auth.uid &&
+                   request.resource.data.status == 'active' &&
+                   request.resource.data.priceCents is int &&
+                   request.resource.data.priceCents > 0 &&
+                   request.resource.data.priceCents <= 100000 && // Max $1000
+                   isValidStringLength(request.resource.data.title, 5, 80) &&
+                   isValidStringLength(request.resource.data.description, 0, 2000) &&
+                   (request.resource.data.sellerName == null || isValidStringLength(request.resource.data.sellerName, 2, 60)) &&
+                   (request.resource.data.category == null || request.resource.data.category in ['All', 'Raw', 'Tumbled', 'Clusters', 'Jewelry', 'Rare']) &&
+                   (request.resource.data.imageUrl == null || request.resource.data.imageUrl is string) &&
+                   (request.resource.data.isVerifiedSeller == null || request.resource.data.isVerifiedSeller is bool) &&
+                   (request.resource.data.rating == null || (request.resource.data.rating is number && request.resource.data.rating >= 0 && request.resource.data.rating <= 5)) &&
+                   isRecentTimestamp();
+      allow update: if isAuth() &&
+                   resource.data.sellerId == request.auth.uid &&
+                   request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['title', 'description', 'priceCents', 'updatedAt']) &&
+                   request.resource.data.priceCents > 0 &&
+                   request.resource.data.priceCents <= 100000;
+      allow delete: if isAuth() &&
+                   (resource.data.sellerId == request.auth.uid || isAdmin());
+    }
+    
+    // Usage tracking (system managed)
+    match /usage/{usageDoc} {
+      allow read: if isAuth() && usageDoc.matches('.*' + request.auth.uid + '.*');
+      allow write: if false; // Only Cloud Functions
+    }
+    
+    // Feature flags (read-only)
+    match /feature_flags/{flagName} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+    
+    // Support tickets with validation
+    match /support_tickets/{ticketId} {
+      allow read: if isAuth() &&
+                 (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuth() &&
+                   hasValidData(['subject', 'description', 'userId', 'status', 'priority']) &&
+                   request.resource.data.userId == request.auth.uid &&
+                   request.resource.data.status == 'open' &&
+                   request.resource.data.priority in ['low', 'medium', 'high'] &&
+                   isValidStringLength(request.resource.data.subject, 5, 100) &&
+                   isValidStringLength(request.resource.data.description, 10, 5000) &&
+                   isRecentTimestamp();
+      allow update: if isAuth() &&
+                   (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // Invite codes (admin managed)
+    match /invites/{code} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+    
+    // Error logs (system only)
+    match /error_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions
+    }
+    
+    // Analytics (admin only)
+    match /analytics/{document=**} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions
+    }
+    
+    // System notifications
+    match /system_notifications/{notificationId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

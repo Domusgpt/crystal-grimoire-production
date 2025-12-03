@@ -1,0 +1,91 @@
+name: crystal_grimoire_fresh
+description: "🔮 Your mystical crystal identification and spiritual guidance companion with holographic UI"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Firebase Core - LATEST VERSIONS
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.0.2
+  cloud_firestore: ^6.0.1
+  firebase_storage: ^13.0.1
+  cloud_functions: ^6.0.1
+  firebase_analytics: ^12.0.1
+  firebase_messaging: ^16.0.1
+  firebase_performance: ^0.11.0+1
+  
+  # Auth - Using 6.x for web compatibility
+  google_sign_in: ^6.2.0
+  sign_in_with_apple: ^7.0.1
+  
+  # UI & Design
+  google_fonts: ^6.1.0
+  flutter_staggered_animations: ^1.1.1
+  shimmer: ^3.0.0
+  lottie: ^3.3.1
+  animations: ^2.0.11
+  
+  # Media & Camera
+  camera: ^0.11.2
+  image_picker: ^1.0.4
+  image: ^4.1.3
+  video_player: ^2.8.1
+  audioplayers: ^6.0.0
+  
+  # Storage & State
+  shared_preferences: ^2.2.2
+  provider: ^6.1.1
+  path_provider: ^2.1.1
+  
+  # Utilities
+  http: ^1.1.0
+  dio: ^5.4.0
+  uuid: ^4.1.0
+  intl: ^0.20.2
+  url_launcher: ^6.2.2
+  permission_handler: ^12.0.1
+  
+  # Web Platform
+  web: ^1.1.0  # Modern web platform support
+  js: ^0.7.2  # For Stripe web integration
+  
+  # Notifications
+  flutter_local_notifications: ^19.4.1
+  timezone: ^0.10.1
+  
+  # Icons & Assets
+  cupertino_icons: ^1.0.6
+  flutter_svg: ^2.0.10+1
+  flutter_markdown: ^0.7.7+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.8
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/images/crystals/
+    - assets/animations/
+    - assets/icons/
+    - assets/data/
+  
+  # fonts:
+  #   - family: Orbitron
+  #     fonts:
+  #       - asset: assets/fonts/Orbitron-Regular.ttf
+  #       - asset: assets/fonts/Orbitron-Bold.ttf
+  #         weight: 700
+  #       - asset: assets/fonts/Orbitron-Black.ttf
+  #         weight: 900

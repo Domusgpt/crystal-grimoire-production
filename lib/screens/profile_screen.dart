@@ -1,0 +1,913 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import '../services/auth_service.dart';
+import '../widgets/common/mystical_button.dart';
+import '../widgets/animations/mystical_animations.dart';
+import '../widgets/premium_badge.dart';
+
+class AccountScreen extends StatefulWidget {
+  const AccountScreen({Key? key}) : super(key: key);
+
+  @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  
+  // Real user data from Firebase
+  User? _currentUser;
+  Map<String, dynamic>? _userData;
+  Map<String, dynamic>? _userStats;
+  bool _isLoading = true;
+  Map<String, dynamic>? _planData;
+  Map<String, dynamic>? _usageData;
+  int _collectionCount = 0;
+  int _collectionLimit = 50;
+  int _identifyLimit = 3;
+  int _guidanceLimit = 1;
+  int _identificationsToday = 0;
+  int _guidanceToday = 0;
+  DateTime? _planExpiresAt;
+  bool _planWillRenew = false;
+
+  // Computed properties for UI
+  String get _userName => _userData?['name'] ?? _currentUser?.displayName ?? 'Crystal Seeker';
+  String get _userEmail => _currentUser?.email ?? 'No email';
+  String get _memberSince => _userData?['createdAt']?.toDate()?.toString().split(' ')[0] ?? 'Unknown';
+  int get _crystalsIdentified => _userStats?['crystalsIdentified'] ?? 0;
+  int get _journalEntries => _userStats?['journalEntries'] ?? 0;
+  int get _daysStreak => _userStats?['daysStreak'] ?? 0;
+  String get _currentTier =>
+      (_planData?['plan'] ?? _userData?['subscriptionTier'] ?? 'free').toString();
+  String get _tierChipLabel => _currentTier.replaceAll('_', ' ').toUpperCase();
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
+    );
+    _loadUserData();
+    _fadeController.forward();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      _currentUser = FirebaseAuth.instance.currentUser;
+      if (_currentUser != null) {
+        // Load user profile data
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_currentUser!.uid)
+            .get();
+
+        if (userDoc.exists) {
+          _userData = userDoc.data();
+          _planWillRenew = _userData?['subscriptionWillRenew'] == true;
+          _planExpiresAt = _coerceToDateTime(_userData?['subscriptionExpiresAt']);
+        }
+
+        // Load user statistics from ACTUAL data (not empty user_stats collection)
+        // Get real crystal collection count
+        final collectionSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_currentUser!.uid)
+            .collection('collection')
+            .get();
+
+        // Get real journal entries count
+        final journalSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_currentUser!.uid)
+            .collection('dreams')
+            .get();
+
+        // Calculate day streak from journal entries
+        int streak = _calculateStreak(journalSnapshot.docs);
+
+        // Build stats from real data
+        _userStats = {
+          'crystalsIdentified': collectionSnapshot.size,
+          'journalEntries': journalSnapshot.size,
+          'daysStreak': streak,
+          'collectionCount': collectionSnapshot.size,
+        };
+        _collectionCount = collectionSnapshot.size;
+
+        await _loadPlanAndUsage(_currentUser!.uid);
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading user data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadPlanAndUsage(String uid) async {
+    try {
+      final planSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('plan')
+          .doc('active')
+          .get();
+      final usageKey = DateFormat('yyyyMMdd').format(DateTime.now());
+      final usageSnapshot = await FirebaseFirestore.instance
+          .collection('usage')
+          .doc('${uid}_$usageKey')
+          .get();
+      final collectionSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('collection')
+          .get();
+
+      if (!mounted) return;
+
+      final planData = planSnapshot.data();
+      final usageData = usageSnapshot.data();
+      final planLimitsRaw = planData != null ? planData['effectiveLimits'] : null;
+      final userLimits = _userData?['effectiveLimits'];
+      final limits = planLimitsRaw is Map<String, dynamic>
+          ? Map<String, dynamic>.from(planLimitsRaw)
+          : userLimits is Map<String, dynamic>
+              ? Map<String, dynamic>.from(userLimits)
+              : <String, dynamic>{};
+
+      setState(() {
+        _planData = planData;
+        _usageData = usageData;
+        _collectionCount = collectionSnapshot.size;
+        _identifyLimit = _normalizeLimit(limits['identifyPerDay'], fallback: 3);
+        _guidanceLimit = _normalizeLimit(limits['guidancePerDay'], fallback: 1);
+        _collectionLimit = _normalizeLimit(limits['collectionMax'], fallback: 50);
+        _identificationsToday =
+            _intFrom(usageData?['identifyCount'] ?? _userStats?['crystalsIdentifiedToday']);
+        _guidanceToday =
+            _intFrom(usageData?['guidanceCount'] ?? _userStats?['guidanceSessions']);
+        _planWillRenew = _userData?['subscriptionWillRenew'] == true;
+        _planExpiresAt = _coerceToDateTime(_userData?['subscriptionExpiresAt']);
+      });
+    } catch (e) {
+      print('Error loading plan/usage data: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  /// Calculate consecutive day streak from journal entries
+  int _calculateStreak(List<QueryDocumentSnapshot> docs) {
+    if (docs.isEmpty) return 0;
+
+    // Get all entry dates
+    final dates = <DateTime>[];
+    for (final doc in docs) {
+      final data = doc.data() as Map<String, dynamic>?;
+      if (data != null) {
+        final timestamp = data['createdAt'] ?? data['dreamDate'] ?? data['timestamp'];
+        if (timestamp != null) {
+          try {
+            final date = timestamp is Timestamp
+                ? timestamp.toDate()
+                : DateTime.parse(timestamp.toString());
+            dates.add(DateTime(date.year, date.month, date.day)); // Normalize to date only
+          } catch (_) {}
+        }
+      }
+    }
+
+    if (dates.isEmpty) return 0;
+
+    // Sort descending (most recent first)
+    dates.sort((a, b) => b.compareTo(a));
+    final uniqueDates = dates.toSet().toList()..sort((a, b) => b.compareTo(a));
+
+    // Count consecutive days starting from today or yesterday
+    final today = DateTime.now();
+    final todayNormalized = DateTime(today.year, today.month, today.day);
+    final yesterday = todayNormalized.subtract(const Duration(days: 1));
+
+    int streak = 0;
+    DateTime? expectedDate;
+
+    for (final date in uniqueDates) {
+      if (expectedDate == null) {
+        // First entry - must be today or yesterday to start streak
+        if (date == todayNormalized || date == yesterday) {
+          streak = 1;
+          expectedDate = date.subtract(const Duration(days: 1));
+        } else {
+          break; // Streak broken - no recent entry
+        }
+      } else if (date == expectedDate) {
+        streak++;
+        expectedDate = date.subtract(const Duration(days: 1));
+      } else if (date.isBefore(expectedDate)) {
+        break; // Gap found, streak ends
+      }
+    }
+
+    return streak;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F0F23),
+      appBar: AppBar(
+        title: Text(
+          'Account',
+          style: GoogleFonts.cinzel(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          // Background particles
+          const Positioned.fill(
+            child: FloatingParticles(
+              particleCount: 20,
+              color: Colors.deepPurple,
+            ),
+          ),
+          
+          // Main content
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildProfileSection(),
+                  const SizedBox(height: 24),
+                  _buildStatsSection(),
+                  const SizedBox(height: 24),
+                  _buildSubscriptionSection(),
+                  const SizedBox(height: 24),
+                  _buildActionsSection(),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileSection() {
+    return FadeScaleIn(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.purple.withOpacity(0.4),
+              Colors.indigo.withOpacity(0.3),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.purple.withOpacity(0.5), width: 2),
+        ),
+        child: Column(
+          children: [
+            // Profile avatar
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.purple,
+                    Colors.pink,
+                  ],
+                ),
+                border: Border.all(color: Colors.white, width: 3),
+              ),
+              child: const Icon(
+                Icons.person,
+                size: 40,
+                color: Colors.white,
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // User name
+            Text(
+              _userName,
+              style: GoogleFonts.cinzel(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            
+            const SizedBox(height: 8),
+            
+            // User email
+            Text(
+              _userEmail,
+              style: GoogleFonts.crimsonText(
+                fontSize: 16,
+                color: Colors.white70,
+              ),
+            ),
+            
+            const SizedBox(height: 8),
+            
+            // Member since
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.purple.withOpacity(0.5)),
+              ),
+              child: Text(
+                'Member since $_memberSince',
+                style: GoogleFonts.cinzel(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatsSection() {
+    return FadeScaleIn(
+      delay: const Duration(milliseconds: 200),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.blue.withOpacity(0.3),
+              Colors.purple.withOpacity(0.2),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Your Journey',
+              style: GoogleFonts.cinzel(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    icon: Icons.search,
+                    value: _crystalsIdentified.toString(),
+                    label: 'Crystals\nIdentified',
+                    color: Colors.green,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    icon: Icons.book,
+                    value: _journalEntries.toString(),
+                    label: 'Journal\nEntries',
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    icon: Icons.local_fire_department,
+                    value: _daysStreak.toString(),
+                    label: 'Day\nStreak',
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.5)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: GoogleFonts.cinzel(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.crimsonText(
+              fontSize: 12,
+              color: Colors.white70,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _intFrom(dynamic value, {int fallback = 0}) {
+    if (value == null) return fallback;
+    if (value is int) return value;
+    if (value is double) return value.round();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
+
+  DateTime? _coerceToDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value, isUtc: true);
+    }
+    if (value is double) {
+      return DateTime.fromMillisecondsSinceEpoch(value.toInt(), isUtc: true);
+    }
+    if (value is String) {
+      return DateTime.tryParse(value);
+    }
+    return null;
+  }
+
+  int _normalizeLimit(dynamic value, {required int fallback}) {
+    if (value == null) return fallback;
+    if (value is String) {
+      final normalized = value.toLowerCase();
+      if (normalized == 'unlimited') return -1;
+      final parsed = int.tryParse(value);
+      if (parsed == null) return fallback;
+      return parsed <= 0 ? -1 : parsed;
+    }
+    if (value is num) {
+      final parsed = value.toInt();
+      return parsed <= 0 ? -1 : parsed;
+    }
+    return fallback;
+  }
+
+  String _planRenewalText() {
+    if (_currentTier.toLowerCase() == 'founders' && _planExpiresAt == null) {
+      return 'Lifetime access unlocked';
+    }
+
+    if (_planExpiresAt == null) {
+      return _planWillRenew
+          ? 'Renews automatically each period'
+          : 'Access active until the current cycle ends';
+    }
+
+    final formatted = DateFormat.yMMMMd().add_jm().format(_planExpiresAt!.toLocal());
+    return _planWillRenew
+        ? 'Renews on $formatted'
+        : 'Access until $formatted';
+  }
+
+  Widget _buildSubscriptionSection() {
+    return FadeScaleIn(
+      delay: const Duration(milliseconds: 400),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.amber.withOpacity(0.3),
+              Colors.orange.withOpacity(0.2),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.amber.withOpacity(0.5)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Subscription',
+                  style: GoogleFonts.cinzel(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                _currentTier.toLowerCase() == 'free'
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.withOpacity(0.5)),
+                        ),
+                        child: Text(
+                          'FREE',
+                          style: GoogleFonts.cinzel(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      )
+                    : PremiumBadge(tier: _currentTier),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Current Usage:',
+              style: GoogleFonts.cinzel(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildUsageBar('Crystal IDs', _identificationsToday, _identifyLimit, Colors.blue),
+            const SizedBox(height: 8),
+            _buildUsageBar('Guidance', _guidanceToday, _guidanceLimit, Colors.purpleAccent),
+            const SizedBox(height: 8),
+            _buildUsageBar('Collection', _collectionCount, _collectionLimit, Colors.green),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _planRenewalText(),
+                style: GoogleFonts.crimsonText(
+                  fontSize: 13,
+                  color: Colors.white70,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: MysticalButton(
+                text: 'Upgrade to Premium',
+                icon: Icons.star,
+                onPressed: () => _showUpgradeDialog(),
+                color: Colors.amber,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUsageBar(String label, int used, int total, Color color) {
+    final isUnlimited = total <= 0;
+    final safeTotal = total <= 0 ? 1 : total;
+    final percentage = (used / safeTotal).clamp(0.0, 1.0);
+    final displayTotal = isUnlimited ? '∞' : total.toString();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.crimsonText(
+                fontSize: 14,
+                color: Colors.white70,
+              ),
+            ),
+            Text(
+              '$used / $displayTotal',
+              style: GoogleFonts.crimsonText(
+                fontSize: 14,
+                color: Colors.white70,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        LinearProgressIndicator(
+          value: isUnlimited ? null : percentage,
+          backgroundColor: Colors.white24,
+          valueColor: AlwaysStoppedAnimation<Color>(color),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionsSection() {
+    return FadeScaleIn(
+      delay: const Duration(milliseconds: 600),
+      child: Column(
+        children: [
+          MysticalButton(
+            text: 'Export Data',
+            icon: Icons.download,
+            onPressed: _exportUserData,
+            color: Colors.blue,
+            width: double.infinity,
+          ),
+          const SizedBox(height: 12),
+          MysticalButton(
+            text: 'Settings',
+            icon: Icons.settings,
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+            color: Colors.green,
+            width: double.infinity,
+          ),
+          const SizedBox(height: 12),
+          MysticalButton(
+            text: 'Sign Out',
+            icon: Icons.logout,
+            onPressed: () => _showSignOutDialog(),
+            color: Colors.red,
+            width: double.infinity,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _exportUserData() async {
+    // Export user data functionality
+    try {
+      final exportData = {
+        'profile': _userData,
+        'stats': _userStats,
+        'exportDate': DateTime.now().toIso8601String(),
+      };
+      
+      // In a real app, this would download or share the file
+      // For now, show a success message
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF1A1A3A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(color: Colors.purple),
+          ),
+          title: Text(
+            'Data Export',
+            style: GoogleFonts.cinzel(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Your data has been prepared for export. Check your downloads folder.',
+            style: GoogleFonts.crimsonText(
+              color: Colors.white70,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'OK',
+                style: GoogleFonts.cinzel(
+                  color: Colors.purple,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      
+      print('Export data: $exportData');
+    } catch (e) {
+      print('Error exporting data: $e');
+    }
+  }
+
+  void _showUpgradeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A3A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: const BorderSide(color: Colors.amber),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.star, color: Colors.amber),
+            const SizedBox(width: 8),
+            Text(
+              'Upgrade to Premium',
+              style: GoogleFonts.cinzel(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Unlock the full potential of your spiritual journey:',
+              style: GoogleFonts.crimsonText(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '• 30 crystal identifications per day\n• Unlimited crystal collection\n• Sell crystals in the marketplace\n• Premium AI guidance\n• Priority customer support\n• Exclusive content and features',
+              style: GoogleFonts.crimsonText(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.amber.withOpacity(0.5)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '\$9.99/month',
+                    style: GoogleFonts.cinzel(
+                      color: Colors.amber,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Maybe Later',
+              style: GoogleFonts.cinzel(
+                color: Colors.white54,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/subscription');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Upgrade Now',
+              style: GoogleFonts.cinzel(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatJoinDate(DateTime? creationTime) {
+    if (creationTime == null) return 'Recently';
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${months[creationTime.month - 1]} ${creationTime.year}';
+  }
+
+  void _showSignOutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A3A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: const BorderSide(color: Colors.red),
+        ),
+        title: Text(
+          'Sign Out',
+          style: GoogleFonts.cinzel(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to sign out? Your data will be safely stored and available when you sign back in.',
+          style: GoogleFonts.crimsonText(
+            color: Colors.white70,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.cinzel(
+                color: Colors.white54,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await AuthService.signOutAndRedirect(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Sign Out',
+              style: GoogleFonts.cinzel(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -1,0 +1,37 @@
+# CRYSTAL GRIMOIRE - FIX GOOGLE SIGN-IN
+
+## STEP 1: Click on Web Client
+
+On the page you're looking at now, click on:
+
+"Web client (auto created by Google Service)"
+
+## STEP 2: Add These URLs
+
+You'll see two sections. Add these URLs:
+
+### Authorized JavaScript origins
+Click "+ ADD URI" and add:
+
+https://crystal-grimoire-2025.web.app
+
+https://crystal-grimoire-2025.firebaseapp.com
+
+
+### Authorized redirect URIs
+Click "+ ADD URI" and add:
+
+https://crystal-grimoire-2025.web.app/__/auth/handler
+
+https://crystal-grimoire-2025.firebaseapp.com/__/auth/handler
+
+
+## STEP 3: Save
+
+Click "SAVE" button at bottom
+
+## STEP 4: Test (wait 2 minutes first)
+
+Go to: https://crystal-grimoire-2025.web.app
+Click "Sign in with Google"
+Should work!

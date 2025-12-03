@@ -1,0 +1,48 @@
+
+=== Deploying to 'crystal-grimoire-2025'...
+
+i  deploying functions
+i  functions: preparing codebase default for deployment
+i  functions: ensuring required API cloudfunctions.googleapis.com is enabled...
+i  functions: ensuring required API cloudbuild.googleapis.com is enabled...
+i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled...
+⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory.
+⚠  functions: Please note that there will be breaking changes when you upgrade.
+i  functions: Loading and analyzing source code for codebase default to determine what to deploy
+Serving at port 8081
+
+FirebaseAppError: The default Firebase app does not exist. Make sure you call initializeApp() before using any of the Firebase services.
+    at AppStore.getApp (/mnt/c/Users/millz/crystal-grimoire-fresh-DEPLOY/functions/node_modules/firebase-admin/lib/app/lifecycle.js:79:19)
+    at getApp (/mnt/c/Users/millz/crystal-grimoire-fresh-DEPLOY/functions/node_modules/firebase-admin/lib/app/lifecycle.js:222:36)
+    at getFirestore (/mnt/c/Users/millz/crystal-grimoire-fresh-DEPLOY/functions/node_modules/firebase-admin/lib/firestore/index.js:52:90)
+    at Object.<anonymous> (/mnt/c/Users/millz/crystal-grimoire-fresh-DEPLOY/functions/index.js:11:12)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24) {
+  errorInfo: {
+    code: 'app/no-app',
+    message: 'The default Firebase app does not exist. Make sure you call initializeApp() before using any of the Firebase services.'
+  },
+  codePrefix: 'app'
+}
+
+
+Error: User code failed to load. Cannot determine backend specification. Timeout after 10000. See https://firebase.google.com/docs/functions/tips#avoid_deployment_timeouts_during_initialization'
+
+=== Deploying to 'crystal-grimoire-2025'...
+
+i  deploying functions
+i  functions: preparing codebase default for deployment
+i  functions: ensuring required API cloudfunctions.googleapis.com is enabled...
+i  functions: ensuring required API cloudbuild.googleapis.com is enabled...
+i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled...
+i  functions: Loading and analyzing source code for codebase default to determine what to deploy
+Serving at port 8477
+
+🔮 Crystal Grimoire Functions (Complete Backend) initialized
+
+
+Error: User code failed to load. Cannot determine backend specification. Timeout after 10000. See https://firebase.google.com/docs/functions/tips#avoid_deployment_timeouts_during_initialization'
