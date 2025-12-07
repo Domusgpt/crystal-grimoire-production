@@ -1,0 +1,20 @@
+{
+  "A": {
+    "config": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "total_input_tokens": 3660,
+    "total_output_tokens": 1056,
+    "total_cost": 0.0007884,
+    "tests": 10,
+    "errors": 0
+  },
+  "B": {
+    "config": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "total_input_tokens": 3660,
+    "total_output_tokens": 758,
+    "total_cost": 0.002993,
+    "tests": 10,
+    "errors": 0
+  }
+}

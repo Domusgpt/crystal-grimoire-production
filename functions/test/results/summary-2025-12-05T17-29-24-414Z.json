@@ -1,0 +1,30 @@
+{
+  "A": {
+    "config": "2.5 Flash-Lite + LOW",
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_cost": 0,
+    "tests": 10
+  },
+  "B": {
+    "config": "2.5 Flash-Lite + MEDIUM",
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_cost": 0,
+    "tests": 10
+  },
+  "C": {
+    "config": "2.5 Flash + LOW",
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_cost": 0,
+    "tests": 10
+  },
+  "D": {
+    "config": "2.5 Flash + MEDIUM",
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_cost": 0,
+    "tests": 10
+  }
+}

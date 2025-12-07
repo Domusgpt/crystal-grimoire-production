@@ -1,0 +1,490 @@
+[
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "01_amethyst.jpg",
+    "image_size_bytes": 54710,
+    "input_tokens": 366,
+    "output_tokens": 138,
+    "total_tokens": 504,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00005520",
+    "total_cost_usd": "0.00009180",
+    "response_time_ms": 1863,
+    "crystal_result": {
+      "crystal_name": "Amethyst",
+      "confidence": "high",
+      "identifying_features": [
+        "Distinct purple coloration, ranging from pale lilac to deep violet",
+        "Crystalline structure with pyramidal terminations",
+        "Formation as a geode or drusy cluster",
+        "Appears to be quartz based on general crystal habit and luster"
+      ],
+      "alternatives": [
+        "Purple Fluorite (less likely due to crystal habit and typical coloration variations)",
+        "Purple Calcite (less likely due to crystal habit and hardness)"
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "01_amethyst.jpg",
+    "image_size_bytes": 54710,
+    "input_tokens": 366,
+    "output_tokens": 110,
+    "total_tokens": 476,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00027500",
+    "total_cost_usd": "0.00038480",
+    "response_time_ms": 6773,
+    "crystal_result": {
+      "raw_response": "```json\n{\n  \"crystal_name\": \"Spirit Quartz (Amethyst)\",\n  \"confidence\": \"high\",\n  \"identifying_features\": [\n    \"Vibrant purple coloration, characteristic of amethyst.\",\n    \"Distinctive growth habit where smaller, often spiky or druzy crystals encrust larger, well-formed hexagonal quartz crystals.\",\n    \"Cluster formation with multiple crystals growing from a matrix.\",\n    \"Translucent to transparent crystals with a vitreous luster.\",\n    \"Some areas show brownish-"
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "02_fluorite.jpg",
+    "image_size_bytes": 24909,
+    "input_tokens": 366,
+    "output_tokens": 124,
+    "total_tokens": 490,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00004960",
+    "total_cost_usd": "0.00008620",
+    "response_time_ms": 1596,
+    "crystal_result": {
+      "crystal_name": "Diamond",
+      "confidence": "high",
+      "identifying_features": [
+        "Brilliant, faceted cut typical of gemstones",
+        "High refractive index, causing significant sparkle and brilliance",
+        "Transparent to translucent appearance",
+        "Colorless or very light-colored",
+        "Sharp, well-defined facets"
+      ],
+      "alternatives": [
+        "Cubic Zirconia",
+        "Moissanite",
+        "White Sapphire"
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "02_fluorite.jpg",
+    "image_size_bytes": 24909,
+    "input_tokens": 366,
+    "output_tokens": 144,
+    "total_tokens": 510,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00036000",
+    "total_cost_usd": "0.00046980",
+    "response_time_ms": 5714,
+    "crystal_result": {
+      "crystal_name": "Diamond",
+      "confidence": "high",
+      "identifying_features": [
+        "Faceted into a round brilliant cut, designed to maximize sparkle.",
+        "Colorless to near-colorless appearance.",
+        "Exhibits very high brilliance and strong light dispersion (fire), characteristic of diamond's optical properties.",
+        "Sharp, well-defined facets and internal reflections."
+      ],
+      "alternatives": [
+        "Cubic Zirconia (CZ)",
+        "Moissanite",
+        "White Sapphire",
+        "White Topaz"
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "03_clear_quartz.jpg",
+    "image_size_bytes": 90339,
+    "input_tokens": 366,
+    "output_tokens": 141,
+    "total_tokens": 507,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00005640",
+    "total_cost_usd": "0.00009300",
+    "response_time_ms": 1893,
+    "crystal_result": {
+      "crystal_name": "Quartz",
+      "confidence": "high",
+      "identifying_features": [
+        "Clear to translucent appearance",
+        "Hexagonal crystal habit with pyramidal terminations",
+        "Presence of striations on crystal faces",
+        "Vitreous luster",
+        "The specimen shows a cluster of prismatic crystals, typical of quartz"
+      ],
+      "alternatives": [
+        "Topaz (less likely due to crystal habit and common occurrence of quartz in this form)",
+        "Calcite (less likely due to hardness and typical crystal forms of calcite)"
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "03_clear_quartz.jpg",
+    "image_size_bytes": 90339,
+    "input_tokens": 366,
+    "output_tokens": 14,
+    "total_tokens": 380,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00003500",
+    "total_cost_usd": "0.00014480",
+    "response_time_ms": 8128,
+    "crystal_result": {
+      "raw_response": "```json\n{\n  \"crystal_name\": \"Clear Quartz"
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "04_rose_quartz.jpg",
+    "image_size_bytes": 116514,
+    "input_tokens": 366,
+    "output_tokens": 81,
+    "total_tokens": 447,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00003240",
+    "total_cost_usd": "0.00006900",
+    "response_time_ms": 1777,
+    "crystal_result": {
+      "crystal_name": "Quartz (Clear Quartz)",
+      "confidence": "high",
+      "identifying_features": [
+        "Hexagonal prismatic crystal shape with a pyramidal termination",
+        "High transparency and clarity",
+        "Conchoidal fracture visible on the termination"
+      ],
+      "alternatives": []
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "04_rose_quartz.jpg",
+    "image_size_bytes": 116514,
+    "input_tokens": 366,
+    "output_tokens": 0,
+    "total_tokens": 366,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00000000",
+    "total_cost_usd": "0.00010980",
+    "response_time_ms": 4531,
+    "crystal_result": {
+      "parse_error": "Cannot read properties of undefined (reading 'match')"
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "05_citrine.jpg",
+    "image_size_bytes": 47234,
+    "input_tokens": 366,
+    "output_tokens": 142,
+    "total_tokens": 508,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00005680",
+    "total_cost_usd": "0.00009340",
+    "response_time_ms": 3399,
+    "crystal_result": {
+      "crystal_name": "Not a crystal/mineral specimen",
+      "confidence": "high",
+      "identifying_features": [
+        "The image depicts a construction site with a person using a sanding tool on a ceiling.",
+        "The material being sanded appears to be drywall, characterized by its green panels and white joint compound.",
+        "There are no visible crystalline structures or mineral formations."
+      ],
+      "alternatives": []
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "05_citrine.jpg",
+    "image_size_bytes": 47234,
+    "input_tokens": 366,
+    "output_tokens": 213,
+    "total_tokens": 579,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00053250",
+    "total_cost_usd": "0.00064230",
+    "response_time_ms": 5036,
+    "crystal_result": {
+      "crystal_name": "Gypsum",
+      "confidence": "high",
+      "identifying_features": [
+        "The image displays large panels of a greenish-blue construction material, which is characteristic of drywall (also known as plasterboard or gypsum board).",
+        "Drywall is manufactured primarily from gypsum (hydrous calcium sulfate).",
+        "A worker is shown sanding white joint compound applied over the seams and screw holes of these panels, a standard procedure for finishing drywall in interior construction.",
+        "The overall context is an indoor construction site where walls and ceilings are being prepared, strongly indicating the use of gypsum-based materials."
+      ],
+      "alternatives": [
+        "While the image does not show a 'crystal/mineral specimen' in the traditional sense (e.g., a raw crystal formation), gypsum is the fundamental mineral component of the visible construction material. There are no other distinct mineral specimens identifiable in the image."
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "06_labradorite.jpg",
+    "image_size_bytes": 59299,
+    "input_tokens": 366,
+    "output_tokens": 109,
+    "total_tokens": 475,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00004360",
+    "total_cost_usd": "0.00008020",
+    "response_time_ms": 2111,
+    "crystal_result": {
+      "crystal_name": "Not applicable",
+      "confidence": "high",
+      "identifying_features": [
+        "Plastic material",
+        "Alphabet letters",
+        "Mathematical symbols",
+        "Bright, artificial colors",
+        "Manufactured shapes"
+      ],
+      "alternatives": []
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "06_labradorite.jpg",
+    "image_size_bytes": 59299,
+    "input_tokens": 366,
+    "output_tokens": 0,
+    "total_tokens": 366,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00000000",
+    "total_cost_usd": "0.00010980",
+    "response_time_ms": 6490,
+    "crystal_result": {
+      "parse_error": "Cannot read properties of undefined (reading 'match')"
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "07_crystals_mixed.jpg",
+    "image_size_bytes": 68653,
+    "input_tokens": 366,
+    "output_tokens": 136,
+    "total_tokens": 502,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00005440",
+    "total_cost_usd": "0.00009100",
+    "response_time_ms": -537,
+    "crystal_result": {
+      "crystal_name": "Rose Quartz",
+      "confidence": "high",
+      "identifying_features": [
+        "Pink color",
+        "Crystalline structure with prismatic terminations",
+        "Translucent to semi-transparent appearance",
+        "Clustering of multiple crystals"
+      ],
+      "alternatives": [
+        "Pink Amethyst (less common, typically has a deeper purple hue)",
+        "Pink Fluorite (often exhibits cubic or octahedral cleavage, not prismatic terminations)",
+        "Rhodonite (typically opaque and has distinct black veining)"
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "07_crystals_mixed.jpg",
+    "image_size_bytes": 68653,
+    "input_tokens": 366,
+    "output_tokens": 0,
+    "total_tokens": 366,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00000000",
+    "total_cost_usd": "0.00010980",
+    "response_time_ms": 6808,
+    "crystal_result": {
+      "parse_error": "Cannot read properties of undefined (reading 'match')"
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "08_selenite.jpg",
+    "image_size_bytes": 86907,
+    "input_tokens": 366,
+    "output_tokens": 28,
+    "total_tokens": 394,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00001120",
+    "total_cost_usd": "0.00004780",
+    "response_time_ms": 1188,
+    "crystal_result": {
+      "raw_response": "This image does not contain a crystal or mineral specimen. It is a photograph of a lion. Therefore, I cannot provide the requested information."
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "08_selenite.jpg",
+    "image_size_bytes": 86907,
+    "input_tokens": 366,
+    "output_tokens": 0,
+    "total_tokens": 366,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00000000",
+    "total_cost_usd": "0.00010980",
+    "response_time_ms": 7013,
+    "crystal_result": {
+      "parse_error": "Cannot read properties of undefined (reading 'match')"
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "09_black_tourmaline.jpg",
+    "image_size_bytes": 12961,
+    "input_tokens": 366,
+    "output_tokens": 111,
+    "total_tokens": 477,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00004440",
+    "total_cost_usd": "0.00008100",
+    "response_time_ms": 1253,
+    "crystal_result": {
+      "crystal_name": "Unknown",
+      "confidence": "low",
+      "identifying_features": [
+        "The image shows a smooth, curved surface with a gradient of pinkish-red colors.",
+        "There are no discernible crystal structures, facets, or textures visible that would allow for mineral identification."
+      ],
+      "alternatives": [
+        "Fabric",
+        "Paper",
+        "Plastic",
+        "Paint"
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "09_black_tourmaline.jpg",
+    "image_size_bytes": 12961,
+    "input_tokens": 366,
+    "output_tokens": 152,
+    "total_tokens": 518,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00038000",
+    "total_cost_usd": "0.00048980",
+    "response_time_ms": 3007,
+    "crystal_result": {
+      "crystal_name": "Not a crystal or mineral specimen",
+      "confidence": "high",
+      "identifying_features": [
+        "Smooth, uniform surface",
+        "Solid reddish-pink color",
+        "Soft gradient suggesting a curved or folded material",
+        "Absence of crystalline structures, cleavage, fracture, or typical mineral textures"
+      ],
+      "alternatives": [
+        "Colored paper (e.g., construction paper, cardstock)",
+        "Fabric (e.g., velvet, felt, plain cloth)",
+        "Painted surface",
+        "Plastic sheet",
+        "Abstract art or background"
+      ]
+    },
+    "error": null
+  },
+  {
+    "config_id": "A",
+    "config_desc": "2.5 Flash-Lite (768px)",
+    "model": "gemini-2.5-flash-lite",
+    "image": "10_agate.jpg",
+    "image_size_bytes": 54214,
+    "input_tokens": 366,
+    "output_tokens": 46,
+    "total_tokens": 412,
+    "input_cost_usd": "0.00003660",
+    "output_cost_usd": "0.00001840",
+    "total_cost_usd": "0.00005500",
+    "response_time_ms": 1193,
+    "crystal_result": {
+      "raw_response": "I am sorry, but I cannot identify any crystal or mineral specimen in the provided image. The image shows a person looking at a tablet displaying anatomical diagrams of the human circulatory system and organs. There are no crystals or minerals visible."
+    },
+    "error": null
+  },
+  {
+    "config_id": "B",
+    "config_desc": "2.5 Flash (768px)",
+    "model": "gemini-2.5-flash",
+    "image": "10_agate.jpg",
+    "image_size_bytes": 54214,
+    "input_tokens": 366,
+    "output_tokens": 125,
+    "total_tokens": 491,
+    "input_cost_usd": "0.00010980",
+    "output_cost_usd": "0.00031250",
+    "total_cost_usd": "0.00042230",
+    "response_time_ms": 1862,
+    "crystal_result": {
+      "crystal_name": "No crystal or mineral specimen present",
+      "confidence": "high",
+      "identifying_features": [
+        "The image depicts a person holding a tablet displaying anatomical illustrations.",
+        "The content on the tablet includes diagrams of the human circulatory system, lungs, and digestive organs.",
+        "No geological or mineralogical features are visible in the image."
+      ],
+      "alternatives": [
+        "N/A (The image clearly shows a digital device, not a physical specimen)"
+      ]
+    },
+    "error": null
+  }
+]

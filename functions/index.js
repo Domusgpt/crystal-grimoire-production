@@ -442,7 +442,7 @@ exports.identifyCrystal = onCall(
       console.log(`🔍 Starting crystal identification for user: ${userId}...`);
       
       const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash', // Modern cost-efficient vision model
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Best cost-efficiency, 50% faster
         generationConfig: {
           maxOutputTokens: 2048,
           temperature: 0.4,
@@ -744,7 +744,7 @@ Since they have no crystals, recommend beginner-friendly crystals to start their
       }
 
       const model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash', // Cost-efficient model
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Best cost-efficiency
         generationConfig: {
           maxOutputTokens: 1024,
           temperature: 0.7,
@@ -1086,7 +1086,13 @@ exports.analyzeDream = onCall(
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Best cost-efficiency
+        generationConfig: {
+          maxOutputTokens: 1024, // Cost protection: limit output
+          temperature: 0.7
+        }
+      });
 
       const crystalList = Array.isArray(userCrystals) ? userCrystals.join(', ') : 'None specified';
       const phase = moonPhase || 'Current lunar cycle';
@@ -1721,7 +1727,15 @@ Return a JSON object with this structure:
   "collection_gaps": ["Elements or chakras they need to balance"]
 }`;
 
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      // Initialize Gemini AI
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Best cost-efficiency
+        generationConfig: {
+          maxOutputTokens: 1024, // Cost protection: limit output
+          temperature: 0.7
+        }
+      });
       const result = await model.generateContent(prompt);
       const response = result.response.text();
 
@@ -1869,7 +1883,15 @@ Provide a comprehensive analysis in JSON format:
   "suggested_crystals": ["Crystal name 1", "Crystal name 2", "Crystal name 3"]
 }`;
 
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      // Initialize Gemini AI
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Best cost-efficiency
+        generationConfig: {
+          maxOutputTokens: 1024, // Cost protection: limit output
+          temperature: 0.7
+        }
+      });
       const result = await model.generateContent(prompt);
       const response = result.response.text();
 
@@ -1964,7 +1986,15 @@ Create a personalized ritual that ONLY uses crystals they already own. Return JS
   "frequency": "How often to practice"
 }`;
 
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      // Initialize Gemini AI
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Best cost-efficiency
+        generationConfig: {
+          maxOutputTokens: 1024, // Cost protection: limit output
+          temperature: 0.7
+        }
+      });
       const result = await model.generateContent(prompt);
       const response = result.response.text();
 
@@ -2040,7 +2070,15 @@ Analyze the astrological compatibility between this person and this crystal. Ret
   "overall_guidance": "Personalized guidance for working with this crystal"
 }`;
 
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      // Initialize Gemini AI
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Best cost-efficiency
+        generationConfig: {
+          maxOutputTokens: 1024, // Cost protection: limit output
+          temperature: 0.7
+        }
+      });
       const result = await model.generateContent(prompt);
       const response = result.response.text();
 
@@ -2239,7 +2277,7 @@ You are spiritual guidance, NOT medical advice.
 
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.5-flash-lite', // Dec 2025: Replaces 2.0-flash-exp
         generationConfig: {
           temperature: 0.9, // High for mystical uniqueness
           maxOutputTokens: 800, // ⚠️ COST SAVER: Limit response length
